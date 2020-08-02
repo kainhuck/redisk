@@ -2,15 +2,30 @@
 
 from conn import connect
 from base import handle
+from five import *
 
 
 class Redis(object):
+    __isinstance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls.__isinstance:
+            cls.__isinstance = super().__new__(cls)
+        return cls.__isinstance
+
+
     def __init__(self, host: str = "127.0.0.1", port: int = 6379, encode: str = "utf-8", debug: bool=False):
         self.host = host
         self.port = port
         self.encode = encode
         self.debug = debug
         self.conn = connect(host=host, port=port)
+
+        self.String = String(self)
+        self.Hash = Hash(self)
+        self.List = List(self)
+        self.Set = Set(self)
+        self.Zset = Zset(self)
 
     def __enter__(self):
         return self
@@ -234,5 +249,8 @@ if __name__ == "__main__":
     # print(a)
     # r.close()
     with Redis(debug=True) as r:
-        a = r.get("name")
+        a = r.String.set("aaa", "123")
+        print(a)
+
+        a = r.keys("*")
         print(a)
