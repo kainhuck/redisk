@@ -12,6 +12,16 @@ class Redis(object):
         self.debug = debug
         self.conn = connect(host=host, port=port)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_val:
+            print("An Exception: %s." % exc_val)
+
+        self.close()
+        return True
+
     def close(self):
         self.conn.close()
 
@@ -219,7 +229,10 @@ class Redis(object):
 
 
 if __name__ == "__main__":
-    r = Redis(debug=True)
-    a = r.hset("stu", {"name:!":323})
-    print(a)
-    r.close()
+    # r = Redis(debug=True)
+    # a = r.get("name")
+    # print(a)
+    # r.close()
+    with Redis(debug=True) as r:
+        a = r.get("name")
+        print(a)
