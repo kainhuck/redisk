@@ -244,13 +244,17 @@ class Redis(object):
 
 
 if __name__ == "__main__":
-    # r = Redis(debug=True)
-    # a = r.get("name")
-    # print(a)
+    r = Redis(debug=True)
+    a = r.get("name")
+    print(a)
     # r.close()
-    with Redis(debug=True) as r:
-        a = r.String.set("aaa", "123")
-        print(a)
+    # with Redis(debug=True) as r:
+    #     # a = r.String.set("aaa", "123")
+    #     # print(a)
 
-        a = r.keys("*")
-        print(a)
+    #     # a = r.keys("*")
+    #     # print(a)
+
+    #     a = r.String.get("stu")
+    #     # print(type(a))
+    #     print(a)

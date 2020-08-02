@@ -1,5 +1,7 @@
 # handle string
 
+from error import RediskException
+
 # start with *
 def handleArrays(string:str) -> [str]:
     parts = string.strip().split("\r\n")[1:]
@@ -19,7 +21,7 @@ def handleBulkStrings(string:str) -> str:
 
 # start with -
 def handleErrors(string:str) -> str:
-    return string.strip()[1:]
+    raise RediskException(string.strip()[1:])
 
 # start with :
 def handleIntegers(string:str) -> int:
@@ -44,3 +46,5 @@ def handle(string:str) -> object:
 if __name__ == "__main__":
     r = handleArrays("*2\r\n$3\r\nage\r\n$4\r\nname\r\n")
     print(r)
+    # handleErrors("sadsad")
+    handle("-dasdasd")
