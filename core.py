@@ -105,44 +105,22 @@ class Redis(object):
         return keyValueDict
 
     def lpush(self, key: str, *args) -> int:
-        """
-        :param: key 
-        :param: args elements
-        :return: length of key
-        """
         cmd = f"lpush {key}"
         for element in args:
             cmd += f" {element}"
         return self.raw(cmd)
 
     def lrange(self, key: str, start: int, stop: int) -> [str]:
-        """
-        :param: key
-        :param: start
-        :param: stop
-        return 结果反序
-        """
         cmd = f"lrange {key} {start} {stop}"
         return self.raw(cmd)
 
     def rpush(self, key: str, *args) -> int:
-        """
-        :param: key 
-        :param: args elements
-        :return: length of key
-        """
         cmd = f"rpush {key}"
         for element in args:
             cmd += f" {element}"
         return self.raw(cmd)
 
     def ltrim(self, key: str, start: int, stop: int) -> str:
-        """
-        :param: key
-        :param: start
-        :param: stop
-        return ok
-        """
         cmd = f"ltrim {key} {start} {stop}"
         return self.raw(cmd)
 
@@ -161,34 +139,22 @@ class Redis(object):
         return self.raw(cmd)
 
     def smembers(self, key: str) -> {str}:
-        """
-        获取集合元素
-        """
         cmd = f"smembers {key}"
         return set(self.raw(cmd))
 
     def sdiff(self, key: str, *args) -> {str}:
-        """
-        获取集合差集
-        """
         cmd = f"sdiff {key}"
         for key in args:
             cmd += f" {key}"
         return set(self.raw(cmd))
 
     def sinter(self, key: str, *args) -> {str}:
-        """
-        获取集合交集
-        """
         cmd = f"sinter {key}"
         for key in args:
             cmd += f" {key}"
         return set(self.raw(cmd))
 
     def sunion(self, key: str, *args) -> {str}:
-        """
-        获取集集合并集
-        """
         cmd = f"sunion {key}"
         for key in args:
             cmd += f" {key}"
@@ -199,19 +165,12 @@ class Redis(object):
         return self.raw(cmd)
 
     def zadd(self, key: str, items:dict) -> int:
-        """
-        向有序集合中插入值
-        :param: kwargs member1=1 member=2
-        """
         cmd = f"zadd {key}"
         for member, score in items.items():
             cmd += f" {score} {member}"
         return self.raw(cmd)
 
     def zrange(self, key: str, start: int, stop: int, withscores: bool = False) -> list:
-        """
-        按序号升序获取有序集合内容
-        """
         cmd = f"zrange {key} {start} {stop}"
         if withscores:
             cmd += f" WITHSCORES"
@@ -224,9 +183,6 @@ class Redis(object):
         return self.raw(cmd)
 
     def zrevrange(self, key: str, start: int, stop: int, withscores: bool = False) -> list:
-        """
-        按序号降序获取有序集合内容
-        """
         cmd = f"zrevrange {key} {start} {stop}"
         if withscores:
             cmd += f" WITHSCORES"
@@ -245,9 +201,13 @@ class Redis(object):
 
 if __name__ == "__main__":
     r = Redis(debug=True)
-    a = r.get("name")
-    print(a)
-    # r.close()
+    name = r.get("name")
+    print(name)
+    name = r.String.get("name")
+    print(name)
+    keys = r.keys("*")
+    print(keys)
+    r.close()
     # with Redis(debug=True) as r:
     #     # a = r.String.set("aaa", "123")
     #     # print(a)
