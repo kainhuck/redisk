@@ -3,42 +3,68 @@
 from error import RediskException
 
 # start with *
-def handleArrays(string:str) -> [str]:
-    parts = string.strip().split("\r\n")[1:]
-    return [item for i, item in enumerate(parts) if i%2==1]
+def handleArrays(rawList:list) -> list:
+    times = int(rawList[0][1:])
+    rawList.pop(0)
+    result = []
+    for i in range(times):
+        flag = rawList[0][0]
+        if flag == "+":
+            result.append(handleSimpleStrings(rawList))
+        elif flag == "-":
+            result.append(handleErrors(rawList))
+        elif flag == ":":
+            result.append(handleIntegers(rawList))
+        elif flag == "$":
+            result.append(handleBulkStrings(rawList))
+        elif flag == "*":
+            result.append(handleArrays(rawList))
+
+    return result
     
 # start with +
-def handleSimpleStrings(string:str) -> str:
-    return string.strip()[1:]
+def handleSimpleStrings(rawList:list) -> str:
+    temp = rawList[0][1:]
+    rawList.pop(0)
+    return temp
 
 # start with $
-def handleBulkStrings(string:str) -> str:
-    parts = string.strip().split("\r\n")
-    if len(parts) > 1:
-        return parts[1]
+def handleBulkStrings(rawList:list) -> str:
+    flag = int(rawList[0][1:])
+    if flag == -1:
+        temp = None
+        rawList.pop(0)
     else:
-        return None
+        temp = rawList[1]
+        rawList.pop(0)
+        rawList.pop(0)
+    return temp
 
 # start with -
-def handleErrors(string:str) -> str:
-    raise RediskException(string.strip()[1:])
+def handleErrors(rawList:list) -> str:
+    temp = rawList[0][1:]
+    rawList.pop(0)
+    raise RediskException(temp)
 
 # start with :
-def handleIntegers(string:str) -> int:
-    return int(string.strip()[1:])
+def handleIntegers(rawList:list) -> int:
+    temp = rawList[0][1:]
+    rawList.pop(0)
+    return int(temp)
 
 def handle(string:str) -> object:
     flag = string[0]
+    rawList = string.strip().split("\r\n")
     if flag == "*":
-        return handleArrays(string)
+        return handleArrays(rawList)
     elif flag == "+":
-        return handleSimpleStrings(string)
+        return handleSimpleStrings(rawList)
     elif flag == "$":
-        return handleBulkStrings(string)
+        return handleBulkStrings(rawList)
     elif flag == "-":
-        return handleErrors(string)
+        return handleErrors(rawList)
     elif flag == ":":
-        return handleIntegers(string)
+        return handleIntegers(rawList)
     else:
         return ""
 

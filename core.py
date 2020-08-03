@@ -42,11 +42,17 @@ class Redis(object):
 
     def raw(self, cmd: str) -> object:
         if self.debug:
-            print(f"[CMD]: {cmd}")
+            print(f"{self.host}:{self.port}> {cmd}")
         cmd = cmd + "\r\n"
         self.conn.send(cmd.encode(self.encode))
         result = self.conn.recv(1024)
         return handle(result.decode(self.encode))
+
+    def multi(self) -> str:
+        return self.raw("multi")
+
+    def exec(self) -> object:
+        return self.raw("exec")
 
     def ping(self) -> str:
         return self.raw("ping")
@@ -201,20 +207,12 @@ class Redis(object):
 
 if __name__ == "__main__":
     r = Redis(debug=True)
-    name = r.get("name")
-    print(name)
-    name = r.String.get("name")
-    print(name)
-    keys = r.keys("*")
-    print(keys)
+    print(r.multi())
+    print(r.set("name", "horika"))
+    print(r.List.lpush("people", "kangkang"))
+    print(r.List.lrange("people", 0, 1))
+    print(r.get("name"))
+    # r.set("asd", "sdas sdsa")
+    # r.set("s", "sss")
+    print(r.exec())
     r.close()
-    # with Redis(debug=True) as r:
-    #     # a = r.String.set("aaa", "123")
-    #     # print(a)
-
-    #     # a = r.keys("*")
-    #     # print(a)
-
-    #     a = r.String.get("stu")
-    #     # print(type(a))
-    #     print(a)
