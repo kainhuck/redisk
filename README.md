@@ -64,3 +64,36 @@ r.Hash.hgetall()
 ```python
 ...
 ```
+
+- transaction
+```python
+r = Redis(debug=True)
+print(r.multi())
+print(r.set("name", "horika"))
+print(r.List.lpush("people", "kangkang"))
+print(r.List.lrange("people", 0, 1))
+print(r.get("name"))
+print(r.set("asd", "sdas sdsa"))
+print(r.set("s", "sss"))
+print(r.exec())
+r.close()
+```
+the out put just like this
+```python
+127.0.0.1:6379> multi
+OK
+127.0.0.1:6379> set name horika
+QUEUED
+127.0.0.1:6379> lpush people kangkang
+QUEUED
+127.0.0.1:6379> lrange people 0 1
+QUEUED
+127.0.0.1:6379> get name
+QUEUED
+127.0.0.1:6379> set asd sdas sdsa
+QUEUED
+127.0.0.1:6379> set s sss
+QUEUED
+127.0.0.1:6379> exec
+['OK', 20, ['kangkang', 'kangkang'], 'horika', RediskException('ERR syntax error'), 'OK']
+```

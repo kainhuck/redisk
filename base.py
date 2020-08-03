@@ -12,7 +12,7 @@ def handleArrays(rawList:list) -> list:
         if flag == "+":
             result.append(handleSimpleStrings(rawList))
         elif flag == "-":
-            result.append(handleErrors(rawList))
+            result.append(handleErrorsStr(rawList))
         elif flag == ":":
             result.append(handleIntegers(rawList))
         elif flag == "$":
@@ -41,10 +41,15 @@ def handleBulkStrings(rawList:list) -> str:
     return temp
 
 # start with -
-def handleErrors(rawList:list) -> str:
+def handleErrors(rawList:list):
     temp = rawList[0][1:]
     rawList.pop(0)
     raise RediskException(temp)
+
+def handleErrorsStr(rawList:list) -> RediskException:
+    temp = rawList[0][1:]
+    rawList.pop(0)
+    return RediskException(temp)
 
 # start with :
 def handleIntegers(rawList:list) -> int:
@@ -70,7 +75,4 @@ def handle(string:str) -> object:
 
 
 if __name__ == "__main__":
-    r = handleArrays("*2\r\n$3\r\nage\r\n$4\r\nname\r\n")
-    print(r)
-    # handleErrors("sadsad")
-    handle("-dasdasd")
+    ...
