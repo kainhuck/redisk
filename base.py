@@ -7,7 +7,7 @@ def handleArrays(rawList:list) -> list:
     times = int(rawList[0][1:])
     rawList.pop(0)
     result = []
-    for i in range(times):
+    for _ in range(times):
         flag = rawList[0][0]
         if flag == "+":
             result.append(handleSimpleStrings(rawList))

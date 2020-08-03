@@ -2,7 +2,7 @@
 
 from conn import connect
 from base import handle
-from five import *
+from classify import *
 
 
 class Redis(object):
@@ -14,9 +14,10 @@ class Redis(object):
         return cls.__isinstance
 
 
-    def __init__(self, host: str = "127.0.0.1", port: int = 6379, encode: str = "utf-8", debug: bool=False):
+    def __init__(self, host: str = "127.0.0.1", port: int = 6379, password="", encode: str = "utf-8", debug: bool=False):
         self.host = host
         self.port = port
+        self.password = password
         self.encode = encode
         self.debug = debug
         self.conn = connect(host=host, port=port)
@@ -26,6 +27,10 @@ class Redis(object):
         self.List = List(self)
         self.Set = Set(self)
         self.Zset = Zset(self)
+        self.Key = Key(self)
+
+        if self.password:
+            self.raw(f"auth {self.password}")
 
     def __enter__(self):
         return self
@@ -40,13 +45,16 @@ class Redis(object):
     def close(self):
         self.conn.close()
 
-    def raw(self, cmd: str) -> object:
+    def raw(self, cmd: str, code: bool=True) -> object:
         if self.debug:
             print(f"{self.host}:{self.port}> {cmd}")
         cmd = cmd + "\r\n"
         self.conn.send(cmd.encode(self.encode))
         result = self.conn.recv(1024)
-        return handle(result.decode(self.encode))
+        if code:
+            return handle(result.decode(self.encode))
+
+        return result
 
     def multi(self) -> str:
         return self.raw("multi")
@@ -59,6 +67,75 @@ class Redis(object):
 
     def keys(self, pattern: str) -> [str]:
         cmd = f"keys {pattern}"
+        return self.raw(cmd)
+    
+    def getAllKeys(self) -> [str]:
+        return self.keys("*")
+    
+    def rename(self, key:str, newkey:str) -> int:
+        cmd = f"rename {key} {newkey}"
+        return self.raw(cmd)
+    
+    def renamenx(self, key:str, newkey:str) -> int:
+        cmd = f"renamenx {key} {newkey}"
+        return self.raw(cmd)
+    
+    def dump(self, key:str) -> bytes:
+        cmd = f"dump {key}"
+        return self.raw(cmd, False)
+    
+    def delete(self, key:str, *args) -> int:
+        cmd = f"del {key}"
+        for key in args:
+            cmd += f" {key}"
+        return self.raw(cmd)
+    
+    def exists(self, key:str, *args) -> int:
+        """
+        :return the number of exists key
+        """
+        cmd = f"exists {key}"
+        for key in args:
+            cmd += f" {key}"
+        return self.raw(cmd)
+    
+    def expire(self, key:str, seconds:int) -> int:
+        cmd = f"expire {key} {seconds}"
+        return self.raw(cmd)
+    
+    def pexpire(self, key:str, milliseconds:int) -> int:
+        cmd = f"pexpire {key} {milliseconds}"
+        return self.raw(cmd)
+
+    def persist(self, key:str) -> int:
+        """
+        cancel the expire time of a key
+        """
+        cmd = f"persist {key}"
+        return self.raw(cmd)
+    
+    def ttl(self, key:str) -> int:
+        """
+        get the left time of a key
+        return in seconds
+        """
+        cmd = f"ttl {key}"
+        return self.raw(cmd)
+    
+    def pttl(self, key:str) -> int:
+        """
+        get the left time of a key
+        return in milliseconds
+        """
+        cmd = f"pttl {key}"
+        return self.raw(cmd)
+
+    def randomKey(self) -> str:
+        cmd = f"randomkey"
+        return self.raw(cmd)
+
+    def typeOf(self, key:str) -> str:
+        cmd = f"type {key}"
         return self.raw(cmd)
 
     def set(self, key: str, value: str, expire: int = -1) -> str:
@@ -206,13 +283,21 @@ class Redis(object):
 
 
 if __name__ == "__main__":
-    r = Redis(debug=True)
-    print(r.multi())
-    print(r.set("name", "horika"))
-    print(r.List.lpush("people", "kangkang"))
-    print(r.List.lrange("people", 0, 1))
-    print(r.get("name"))
-    print(r.set("asd", "sdas sdsa"))
-    print(r.set("s", "sss"))
-    print(r.exec())
-    r.close()
+    # r = Redis(debug=True)
+    # print(r.ping())
+    # print(r.getAllKeys())
+    # print(r.delete("stu"))
+    # print(r.exists("stu"))
+    # print(r.expire("aaa", 10))
+    # print(r.randomKey())
+    # print(r.typeOf(r.randomKey()))
+    # print(r.persist("aaa"))
+    # print(r.pexpire("age", 1000))
+    # print(r.ttl("age"))
+    # print(r.rename("cname", "name"))
+    # print(r.Key.keys("*"))
+    # print(r.dump("gender"))
+    # r.close()
+
+    with Redis(password="foobared", debug=True) as r:
+        print(r.ping())
