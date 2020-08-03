@@ -17,7 +17,7 @@ def handleBulkStrings(string:str) -> str:
     if len(parts) > 1:
         return parts[1]
     else:
-        return ""
+        return None
 
 # start with -
 def handleErrors(string:str) -> str:
